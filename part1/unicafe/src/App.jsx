@@ -5,7 +5,12 @@ const Button = ({ onClick, text }) => {
 }
 
 const StatisticLine  = ({ text, value }) => {
-  return <p>{text} {value}</p>
+  return (
+    <tr>
+      <td>{text}</td>
+      <td>{value}</td>
+    </tr>
+  )
 }
 
 const Statistics = (props) => {
@@ -15,6 +20,7 @@ const Statistics = (props) => {
 
   return (
     <>
+
       <StatisticLine text="good" value={props.good}/>
       <StatisticLine text="neutral" value={props.neutral}/>
       <StatisticLine text="bad" value={props.bad}/>
