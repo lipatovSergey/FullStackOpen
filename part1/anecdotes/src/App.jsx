@@ -32,6 +32,8 @@ const App = () => {
       <br />
       <button onClick={() => handlePointsChange()}>vote</button>
       <button onClick={() => setSelected(randomNumber())}>next anecdote</button>
+      <br />
+      {anecdotes[points.indexOf(Math.max(...points))]}
     </>
   )
 }
