@@ -32,7 +32,6 @@ const App = () => {
     e.preventDefault()
     const newPerson = { name: newName.trim(), number: number.trim() }
     const existingPerson = persons.find((person) => person.name.toLowerCase() === newPerson.name.toLowerCase())
-    console.log(existingPerson)
 
     if (
       existingPerson !== undefined &&
@@ -48,7 +47,7 @@ const App = () => {
           showNotification(`Added ${returnedPerson.name}, 'success'`)
         })
         .catch((error) => {
-          showNotification(error)
+          showNotification(error.response.data.error, 'error')
         })
     }
     setNewName('')
@@ -59,17 +58,17 @@ const App = () => {
     server
       .updateNumber(personToUpdate.id, personToUpdate)
       .then((updatedPerson) => {
-        console.log(updatedPerson)
         setPersons(persons.map((person) => (person.id === updatedPerson.id ? updatedPerson : person)))
         showNotification(`Number of ${updatedPerson.name} updated, 'success'`)
       })
       .catch((error) => {
-        showNotification(`Information of ${personToUpdate.name} has already been removed from a server, 'error'`)
+        showNotification(error.response.data.error, 'error')
       })
   }
 
   const handleDeletePerson = (personToDelete) => {
     if (window.confirm(`Delete ${personToDelete.name} ?`)) {
+      personToDelete.id
       server
         .deletePerson(personToDelete.id)
         .then(() => {
