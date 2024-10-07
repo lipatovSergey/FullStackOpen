@@ -1,38 +1,58 @@
 const blogsRouter = require('express').Router()
-const { request, response } = require('express')
 const Blog = require('../models/blog')
+const User = require('../models/user')
+const tokenExtractor = require('../utils/tokenExtractor')
+const userExtractor = require('../utils/userExtractor')
 
 blogsRouter.get('/', async (request, response) => {
-  const blogs = await Blog.find({})
+  const blogs = await Blog.find({}).populate('user', { username: 1, name: 1 })
   response.status(200).json(blogs)
 })
 
-blogsRouter.post('/', async (request, response) => {
-  const blog = new Blog(request.body)
+blogsRouter.post('/', tokenExtractor, userExtractor, async (request, response) => {
+  const user = request.user
+
+  const { title, author, url, likes } = request.body
+
+  const blog = new Blog({
+    title,
+    author,
+    url,
+    likes,
+    user: user._id,
+  })
 
   if (!blog.title || !blog.url) {
     return response.status(400).json({ error: 'all properties are required' })
   }
 
   const savedBlog = await blog.save()
+  user.blogs = user.blogs.concat(savedBlog._id)
+  await user.save()
+
   response.status(201).json(savedBlog)
 })
 
-blogsRouter.delete('/:id', async (request, response) => {
-  const id = request.params.id
-  const result = await Blog.findByIdAndDelete(id)
+blogsRouter.delete('/:id', tokenExtractor, userExtractor, async (request, response) => {
+  const blogId = request.params.id
+  const blog = await Blog.findById(blogId)
+  // Check if the blog exists
+  if (!blog) {
+    return response.status(404).json({ error: 'blog not found' })
+  }
 
-  if (result) {
-    response.status(204).end()
+  const userId = request.user.id
+  if (blog.user.toString() === userId.toString()) {
+    await Blog.findByIdAndDelete(blogId)
+    return response.status(204).end()
   } else {
-    response.status(404).json({ error: 'Blog not found' })
+    return response.status(403).json({ error: 'forbidden: user not authorized to delete this blog' })
   }
 })
 
-blogsRouter.put('/:id', async (request, response) => {
+blogsRouter.put('/:id', tokenExtractor, userExtractor, async (request, response) => {
   const id = request.params.id
   const body = request.body
-  console.log(body)
 
   // Ensure there is at least one field to update
   if (!body.title && !body.author && !body.url && body.likes === undefined) {
