@@ -6,6 +6,7 @@ const userExtractor = require('../utils/userExtractor')
 
 blogsRouter.get('/', async (request, response) => {
   const blogs = await Blog.find({}).populate('user', { username: 1, name: 1 })
+  console.log(blogs)
   response.status(200).json(blogs)
 })
 
@@ -27,10 +28,11 @@ blogsRouter.post('/', tokenExtractor, userExtractor, async (request, response) =
   }
 
   const savedBlog = await blog.save()
+  const populatedBlog = await savedBlog.populate('user', { username: 1, name: 1 })
   user.blogs = user.blogs.concat(savedBlog._id)
   await user.save()
 
-  response.status(201).json(savedBlog)
+  response.status(201).json(populatedBlog)
 })
 
 blogsRouter.delete('/:id', tokenExtractor, userExtractor, async (request, response) => {
