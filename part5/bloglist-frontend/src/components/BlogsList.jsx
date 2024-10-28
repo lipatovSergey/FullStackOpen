@@ -1,7 +1,13 @@
 import { useState, useEffect } from 'react'
 import Blog from './Blog'
 
-const BlogsList = ({ blogs, user, handleLogout, handleBlogDelete }) => {
+const BlogsList = ({
+  blogs,
+  user,
+  handleLogout,
+  handleBlogDelete,
+  handleBlogLike
+}) => {
   const [displayedBlogs, setDisplayedBlogs] = useState([])
   const [isDescending, setIsDescending] = useState(true)
 
@@ -36,6 +42,7 @@ const BlogsList = ({ blogs, user, handleLogout, handleBlogDelete }) => {
             blog={blog}
             showDeleteButton={blog.user.username === user.username}
             handleBlogDelete={handleBlogDelete}
+            handleBlogLike={handleBlogLike}
           />
         ))
       ) : (

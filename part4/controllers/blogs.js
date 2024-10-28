@@ -6,7 +6,6 @@ const userExtractor = require('../utils/userExtractor')
 
 blogsRouter.get('/', async (request, response) => {
   const blogs = await Blog.find({}).populate('user', { username: 1, name: 1 })
-  console.log(blogs)
   response.status(200).json(blogs)
 })
 
